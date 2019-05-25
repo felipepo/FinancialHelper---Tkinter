@@ -95,38 +95,38 @@ class CreditCard(Account):
     #Class to create the credit cards accounts
     def __init__(self, ccName):
         self.limit = 0
-'''
-#Create all accounts
-allAcc = AllAccounts()
+if __name__ == "__main__":
+    #Create all accounts
+    allAcc = AllAccounts()
 
-#Add transaction when there is no accounts
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","BB")
+    #Add transaction when there is no accounts
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","BB")
 
-#Add Account
-allAcc.AddAcc("BB")
-#Add transaction to an account that doesn't exist
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
+    #Add Account
+    allAcc.AddAcc("BB")
+    #Add transaction to an account that doesn't exist
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
 
-allAcc.AddAcc("Santander")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","BB")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
-allAcc.AddTransactiontoAll("Feira",50,"05/03/2015","BK","BB")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
-allAcc.AddTransactiontoAll("Remédio",50,"05/03/2015","BK","BB")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
-allAcc.AddTransactiontoAll("Feira",50,"05/03/2015","BK","BB")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","BB")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
-allAcc.AddTransactiontoAll("Feira",50,"05/03/2015","BK","BB")
-allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
+    allAcc.AddAcc("Santander")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","BB")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
+    allAcc.AddTransactiontoAll("Feira",50,"05/03/2015","BK","BB")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
+    allAcc.AddTransactiontoAll("Remédio",50,"05/03/2015","BK","BB")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
+    allAcc.AddTransactiontoAll("Feira",50,"05/03/2015","BK","BB")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","BB")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
+    allAcc.AddTransactiontoAll("Feira",50,"05/03/2015","BK","BB")
+    allAcc.AddTransactiontoAll("Food",50,"05/03/2015","BK","Santander")
 
 
-#Check all accounts attributes
-print(allAcc.accountsObjs)
-print(allAcc.totalAmount)
-#Funs.showdic(allAcc.transactions)
+    #Check all accounts attributes
+    print(allAcc.accountsObjs)
+    print(allAcc.totalAmount)
+    #Funs.showdic(allAcc.transactions)
 
-#Check specific accounts attributes
-print(allAcc.accountsObjs["BB"].totalAmount)
-#Funs.showdic(allAcc.accountsObjs["Santander"].transactions)'''
+    #Check specific accounts attributes
+    print(allAcc.accountsObjs["BB"].totalAmount)
+    #Funs.showdic(allAcc.accountsObjs["Santander"].transactions)
