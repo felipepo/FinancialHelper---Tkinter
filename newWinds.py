@@ -371,11 +371,6 @@ class CategoryWindow(newWindow):
         listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
         self.catListMenu.popupMenu.config(values = listOfCategories)
 
-    #def destroyFcn(self):
-        #self.mainWinObj.accPage.transFrame.transContainer.clearContainer()
-        #self.mainWinObj.accPage.transFrame.transContainer.setOfTransactions(self.mainWinObj)
-        #self.newWindow.destroy()
-
 class OptionsButton(tk.Frame):
     #Class to create the dropdown menu
     def __init__(self, parent, choices, nrow, ncol, mainWinObj, currCatColor):
