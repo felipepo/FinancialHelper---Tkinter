@@ -30,15 +30,18 @@ class OptionsMenu(tk.Frame):
 
 class OptionsButton(tk.Frame):
     #Class to create the dropdown menu
-    def __init__(self, parent, choices, nrow, ncol):
+    def __init__(self, parent, choices, nrow, ncol, selected = "default"):
         if len(choices) == 0:
             choices.append("Sem Conta")
         # Create a Tkinter variable
         self.tkvar = tk.StringVar(parent)
 
         # Dictionary with options
-        self.tkvar.set(choices[0]) # set the default option
-    
+        if selected == "default":
+            self.tkvar.set(choices[0]) # set the default option
+        else:
+            self.tkvar.set(selected)
+                
         self.popupMenu = ttk.Combobox(parent, textvariable = self.tkvar, values = choices, state = 'readonly')
         #self.popupMenu.config(bd=0, bg="white")
         self.popupMenu.grid(row = nrow, column =ncol, sticky="nsew")
@@ -50,12 +53,15 @@ class OptionsButton(tk.Frame):
     #    print( self.tkvar.get() )
 
 class EntryWithText(ttk.Entry):
-    def __init__(self, parent, defaultstr, checkFunction, styleName):
+    def __init__(self, parent, defaultstr, checkFunction, styleName, currentStr = "default"):
         ttk.Entry.__init__(self, parent)
         self.styleName = styleName + '.TEntry'
         self.defaultstr = defaultstr
         self.entry = ttk.Entry(parent, style = self.styleName)
-        self.entry.insert(0, self.defaultstr)
+        if currentStr == "default":
+            self.entry.insert(0, self.defaultstr)
+        else:
+            self.entry.insert(0, currentStr)
         self.entry.bind('<FocusIn>', lambda event: self.on_entry_click(self))
         self.entry.bind('<FocusOut>', lambda event: self.on_focusout(self, checkFunction))
         

@@ -47,7 +47,10 @@ class AccountFrame(tk.Frame):
     def UpdateLabel(self, accName):
         totalStr = str(self.mainWinObj.allAcc.accountsObjs[accName].totalAmount)
         if accName == "Todas":
-            totalStr = str(self.mainWinObj.allAcc.totalAmount)
+            totalFloat = 0
+            for iAcc in self.choices:
+                totalFloat += self.mainWinObj.allAcc.accountsObjs[iAcc].totalAmount
+            totalStr = str(totalFloat)
         self.valueStr.set(totalStr)
         if totalStr[0] == "-":
             self.value.config(fg = "red")

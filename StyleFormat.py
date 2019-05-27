@@ -31,6 +31,7 @@ def setStyle(categoriesColor):
         currStyle.configure(iCat + 'PosVal.TLabel', background = categoryColor, font = ('Arial', 11, 'bold'), foreground = 'green')
         currStyle.configure(iCat + 'Cat.TLabel', background = categoryColor, font = ('Helvetica',10), foreground = 'black')
         currStyle.configure(iCat + 'Comment.TLabel', background = categoryColor, font = ('Arial', 10, 'underline'), foreground = 'black')
+        currStyle.configure(iCat + 'Edit.TButton', background = categoryColor)
 
 def updateCategoryStyle(currCat, categoryColor):
     currStyle = ttk.Style()
@@ -42,3 +43,4 @@ def updateCategoryStyle(currCat, categoryColor):
     currStyle.configure(currCat + 'PosVal.TLabel', background = categoryColor, font = ('Arial', 11, 'bold'), foreground = 'green')
     currStyle.configure(currCat + 'Cat.TLabel', background = categoryColor, font = ('Helvetica',10), foreground = 'black')
     currStyle.configure(currCat + 'Comment.TLabel', background = categoryColor, font = ('Arial', 10, 'underline'), foreground = 'black')
+    currStyle.configure(currCat + 'Edit.TButton', background = categoryColor)

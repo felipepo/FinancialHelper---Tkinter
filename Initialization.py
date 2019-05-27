@@ -63,7 +63,7 @@ class HomePage(tk.Frame):
         self.accFrame = HomePageClasses.AccountFrame(mainWinObj) #Create Frame Object for the account 
         self.ccFrame = HomePageClasses.CreditCardFrame(mainWinObj.home) #Create Frame Object for the Credit Card 
         self.bills = HomePageClasses.Bills(mainWinObj.home) #Create Status Bar Object
-        mainPlot = Plots.HomeWindowGraph(mainWinObj.home) #Create Graph Object for the HomePage
+        mainPlot = Plots.HomeWindowGraph(mainWinObj.home, mainWinObj) #Create Graph Object for the HomePage
 
         self.accFrame.UpdateLabel("Todas")
 
@@ -74,7 +74,7 @@ class AccountPage(tk.Frame):
         self.transFrame = AccountPageClasses.TransactionFrame(mainWinObj) # Frame where transactions appear
         self.controlFrame = AccountPageClasses.ControlFrame(mainWinObj) # Frame with the control buttons
         #self.plotFrame = AccountPageClasses.PlotFrame(mainWinObj) # Frame for the plots
-        mainPlot = Plots.HomeWindowGraph(mainWinObj.accPageFrm) #Create Graph Object for the HomePage, (row = 0, column = 1)
+        mainPlot = Plots.HomeWindowGraph(mainWinObj.accPageFrm, mainWinObj) #Create Graph Object for the HomePage, (row = 0, column = 1)
         
         #accLabel = tk.Label(parent, text="Account Page Frame", bg = "white")
         #accLabel.pack()

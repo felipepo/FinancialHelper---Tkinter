@@ -9,15 +9,17 @@ from random import sample
 
 class HomeWindowGraph(tk.Frame):
     #Class to create the plot at the Home Window
-    def __init__ (self, parent):
+    def __init__ (self, parent, mainWinObj):
         tk.Frame.__init__(self)
+        self.mainWinObj = mainWinObj
         all_colors = [k for k,v in pltc.cnames.items()]
-        Categories = ('A', 'B', 'C', 'D', 'E')
-        Values = (12, 40, 70, 35, 26)
-        colors = sample(all_colors, 5)
+        #all_colors = list(self.mainWinObj.allAcc.categoriesColor.values())
+        Categories = list(self.mainWinObj.allAcc.categoriesColor.keys())
+        Values = (12, 40, 70, 35, 26, 40, 70, 35, 26)
+        #colors = sample(all_colors, 5)
         f = Figure()#figsize=(5,1))
         a = f.add_subplot(111)
-        a.bar(Categories, Values, color=colors)
+        a.bar(Categories, Values, color=all_colors)
         a.set_facecolor('xkcd:mint green')
         f.patch.set_facecolor('xkcd:mint green')
         self.canvas = FigureCanvasTkAgg(f, parent)

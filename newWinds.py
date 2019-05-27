@@ -30,44 +30,60 @@ class newWindow(tk.Frame):
 #=========================================================================================
 class TransactionWindowSqr(newWindow):
     #Class to create a window to add data for a transaction
-    def __init__(self, mainWinObj, inOrout):
+    def __init__(self, mainWinObj, inOrout, currTransaction = ""):
         newWindow.__init__(self)
         self.inOrout = inOrout
+        self.mainWinObj = mainWinObj
         self.newWindow.wm_title("Nova Transação")
         self.newWindow.geometry("400x200")
         Funs.SetGridWeight(3,6,self.newWindowFrm, [0, 1])
+        if inOrout == "In" or inOrout == "Out":
+            categoryVal = "default"
+            dateVal = "default"
+            totalVal = "default"
+            accVal = "default"
+            commVal = ""
+        else:
+            self.transObj = currTransaction
+            categoryVal = currTransaction.lblCat["text"]
+            dateVal = currTransaction.lblDate["text"]
+            totalVal = currTransaction.lblVal["text"]
+            accVal = currTransaction.lblAcc["text"]
+            commVal = currTransaction.lblCom["text"]
+            totalVal = totalVal.replace("R$ ", "")
+            totalVal = totalVal.replace("-", "")
         
         #Category
         self.categoryLabel = ttk.Label(self.newWindowFrm, text = "Categoria",anchor = 'w', style = 'newWindow.TLabel')
         self.categoryLabel.grid(row = 0, column = 0, columnspan = 2, sticky = 'nsew', padx = 5, pady = 5)
-        listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
+        listOfCategories = list(self.mainWinObj.allAcc.categoriesColor.keys())
         if not listOfCategories:
             listOfCategories.append("")
-        self.categoryDropMenu = customWidgets.OptionsButton(self.newWindowFrm, listOfCategories, 1, 0)
+        self.categoryDropMenu = customWidgets.OptionsButton(self.newWindowFrm, listOfCategories, 1, 0, categoryVal)
         self.categoryDropMenu.popupMenu.configure(style = 'newWindow.TCombobox')
         self.categoryDropMenu.popupMenu.grid(columnspan = 2, padx = 5)
         
         #Date - DD/MM/YYYY
         self.dateLabel = ttk.Label(self.newWindowFrm, text = "Data",anchor = 'w', style = 'newWindow.TLabel')
         self.dateLabel.grid(row = 0, column = 2, columnspan = 2, sticky = 'nsew', padx = 5, pady = 5)
-        self.dateEntry = customWidgets.EntryWithText(self.newWindowFrm, 'DD/MM/YYYY', self.checkDate, 'DateEntry')
+        self.dateEntry = customWidgets.EntryWithText(self.newWindowFrm, 'DD/MM/YYYY', self.checkDate, 'DateEntry', dateVal)
         self.dateEntry.entry.grid(row = 1, column = 2, columnspan = 2, padx = 5, ipady = 5, sticky = 'nsew')
         
         #Value - XX,XX
         self.valueLabel = ttk.Label(self.newWindowFrm, text = "Valor (R$)",anchor = 'w', style = 'newWindow.TLabel')
         self.valueLabel.grid(row = 3, column = 0, columnspan = 2, sticky = 'nsew', padx = 5, pady = (5,5))
-        self.valueEntry = customWidgets.EntryWithText(self.newWindowFrm, '00.00', self.checkValue, 'ValueEntry')
+        self.valueEntry = customWidgets.EntryWithText(self.newWindowFrm, '00.00', self.checkValue, 'ValueEntry', totalVal)
         self.valueEntry.entry.grid(row = 4, column = 0, columnspan = 2, padx = 5, ipady = 5, sticky = 'nsew')
         
         #Account
         self.accLabel = ttk.Label(self.newWindowFrm, text = "Conta",anchor = 'w', style = 'newWindow.TLabel')
         self.accLabel.grid(row = 3, column = 2, columnspan = 2, sticky = 'nsew', padx = 5, pady = (5,5))
-        listOfAccounts = list(mainWinObj.allAcc.accountsObjs.keys())
+        listOfAccounts = list(self.mainWinObj.allAcc.accountsObjs.keys())
         if not listOfAccounts:
             listOfAccounts.append("")
         else:
             del listOfAccounts[0]
-        self.accDropMenu = customWidgets.OptionsButton(self.newWindowFrm, listOfAccounts, 4, 2)
+        self.accDropMenu = customWidgets.OptionsButton(self.newWindowFrm, listOfAccounts, 4, 2, accVal)
         self.accDropMenu.popupMenu.configure(style = 'newWindow.TCombobox')
         self.accDropMenu.popupMenu.grid(columnspan = 2, padx = 5)
         
@@ -75,16 +91,20 @@ class TransactionWindowSqr(newWindow):
         self.commentLabel = ttk.Label(self.newWindowFrm, text = "Comentário",anchor = 'sw', style = 'newWindow.TLabel')
         self.commentLabel.grid(row = 5, column = 0, columnspan = 3, sticky = 'nsew', padx = 5, pady = (5,5))
         self.commentEntry = ttk.Entry(self.newWindowFrm, style = 'newWindow.TEntry')
+        self.commentEntry.insert(0, commVal)
         self.commentEntry.grid(row = 6, column = 0, columnspan = 3, sticky = 'nsew', padx = 5, ipady = 5, pady = (0,5))
 
         #Wrong date format label
         self.wrongDateLbl = ttk.Label(self.newWindowFrm, text = "Formato da data é DD/MM/YYYY", anchor = 'w', style = 'Alert.TLabel')
         
         self.getEntry = ttk.Button(self.newWindowFrm, text = "OK", style = 'newWindow.TButton')
-        self.getEntry.bind("<Button-1>", lambda event: self.newTransaction(mainWinObj))
+        if inOrout == "update":
+            self.getEntry.bind("<Button-1>", lambda event: self.updateTransaction())
+        else:
+            self.getEntry.bind("<Button-1>", lambda event: self.newTransaction())
         self.getEntry.grid(row = 5, column = 3, rowspan = 2,sticky = 'nswe', padx = 5, pady = (20,5))
 
-    def newTransaction(self, mainWinObj):
+    def newTransaction(self):
         category = self.categoryDropMenu.tkvar.get()
         value = self.valueEntry.entry.get()
         if self.inOrout == 'Out':
@@ -92,16 +112,47 @@ class TransactionWindowSqr(newWindow):
         date = self.dateEntry.entry.get()
         bankAccount = self.accDropMenu.tkvar.get()
         comment = self.commentEntry.get()
-        added = mainWinObj.allAcc.AddTransactiontoAll(category, value, date, comment, bankAccount)
-        if added:
-            currTrans = "trans"+str(mainWinObj.allAcc.accountsObjs[bankAccount].nextTrans - 1)
-            currTransObj = mainWinObj.allAcc.accountsObjs[bankAccount].transactions[currTrans]
-            mainWinObj.accPage.transFrame.transContainer.addTransaction(currTransObj)
-            accName = mainWinObj.homePage.accFrame.options.dropMenu.tkvar.get()
+        currTrans = self.mainWinObj.allAcc.AddTransaction(category, value, date, comment, bankAccount)
+        if currTrans:
+            currTransObj = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[currTrans]
+            self.mainWinObj.accPage.transFrame.transContainer.addTransaction(currTransObj)
+            accName = self.mainWinObj.homePage.accFrame.options.dropMenu.tkvar.get()
             self.newWindow.destroy()
-            mainWinObj.homePage.accFrame.UpdateLabel(accName)
+            self.mainWinObj.homePage.accFrame.UpdateLabel(accName)
         else:
             tk.messagebox.showinfo('Campo incorreto','Erro nos campos.')
+
+    def updateTransaction(self):
+        category = self.categoryDropMenu.tkvar.get()
+        value = self.valueEntry.entry.get()
+        if self.inOrout == 'Out':
+            value = '-' + value
+        date = self.dateEntry.entry.get()
+        bankAccount = self.accDropMenu.tkvar.get()
+        comment = self.commentEntry.get()
+        updatedFlag = self.mainWinObj.allAcc.UpdateTransaction(self.transObj.transID, category, value, date, comment, bankAccount)
+        if updatedFlag:
+            accName = self.mainWinObj.homePage.accFrame.options.dropMenu.tkvar.get()
+            self.newWindow.destroy()
+            self.mainWinObj.homePage.accFrame.UpdateLabel(accName)
+        else:
+            tk.messagebox.showinfo('Campo incorreto','Erro nos campos.')
+        transactionData = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[self.transObj.transID]
+        self.transObj.transCat.set(transactionData.category)
+        self.transObj.transDate.set(transactionData.date)
+        self.transObj.transVal.set(transactionData.value)
+        self.transObj.transAcc.set(transactionData.bankAccount)
+        self.transObj.transComm.set(transactionData.comment)
+        self.transObj.transFrame["style"] = category + 'Box.TFrame'
+        self.transObj.fstRowFrame["style"] = category + 'Box.TFrame'
+        self.transObj.scndRowFrame["style"] = category + 'Box.TFrame'
+        self.transObj.trdRowFrame["style"] = category + 'Box.TFrame'
+        self.transObj.lblCat["style"] = category + 'Cat.TLabel'
+        self.transObj.lblDate["style"] = category + 'Date.TLabel'
+        self.transObj.lblVal["style"] = category + self.transObj.valType + '.TLabel'
+        self.transObj.lblAcc["style"] = category + 'Acc.TLabel'
+        self.transObj.lblCom["style"] = category + 'Box.TLabel'
+        self.transObj.editBtn["style"] = category + 'Box.TLabel'
 
     def checkDate(self):
         datePattern = re.compile(r'\d{2}/\d{2}/\d{4}\Z')
@@ -111,14 +162,13 @@ class TransactionWindowSqr(newWindow):
             #tk.messagebox.showinfo('Formato Data','A data foi escrita no formato errado.')
             return False
         else:
-            month, year = Funs.GetMY(self.dateEntry.entry.get())
             self.wrongDateLbl.grid_forget()
             return True
 
     def checkValue(self):
         currValue = self.valueEntry.entry.get()
         try:
-            intVal = float(currValue)
+            float(currValue)
         except:
             msgStr = "Valor não é válido"
             print(msgStr)
@@ -181,20 +231,20 @@ class NewAccountWindow(AccountWindow):
         #Entry for account name
         self.valueEntry = ttk.Entry(self.newWindowFrm, style = 'newWindow.TEntry')
         self.valueEntry.focus()
-        self.valueEntry.bind("<Return>", lambda event: self.newAccount(self, mainWinObj))
+        self.valueEntry.bind("<Return>", lambda event: self.newAccount(mainWinObj))
         self.valueEntry.grid(row = 1, column = 0, sticky = 'nsew', padx = 5, pady = 5)
 
-        self.okButton.bind("<Button-1>", lambda event: self.newAccount(self, mainWinObj))
+        self.okButton.bind("<Button-1>", lambda event: self.newAccount(mainWinObj))
 
-    def newAccount(event, windObj, mainWinObj):
+    def newAccount(self, mainWinObj):
         #Function to add a new account
-        value = windObj.valueEntry.get()
+        value = self.valueEntry.get()
         added = mainWinObj.allAcc.AddAcc(value)
 
         #Check if the account already exists
         if added:            
             mainWinObj.homePage.accFrame.UpdateOptions()
-            windObj.destroy()
+            self.destroy()
         else:
             tk.messagebox.showinfo('Conta Existente','A conta que você está tentando adicionar já existe.')
             #windObj.okButton.config(relief = "raised")
@@ -215,20 +265,20 @@ class DelAccountWindow(AccountWindow):
         self.accOptions = customWidgets.OptionsButton(self.newWindowFrm, listOfAccounts, 1, 0)
         self.accOptions.popupMenu.grid(padx = 5, pady = 5)
 
-        self.okButton.bind("<Button-1>", lambda event: self.delAccount(self, mainWinObj))
+        self.okButton.bind("<Button-1>", lambda event: self.delAccount(mainWinObj))
     
-    def delAccount(event, windObj, mainWinObj):
+    def delAccount(self, mainWinObj):
         #Function to add a new account
-        value = windObj.accOptions.tkvar.get()
+        value = self.accOptions.tkvar.get()
         added = mainWinObj.allAcc.DelAcc(value)
 
         #Check if the account already exists
         if added:            
             mainWinObj.homePage.accFrame.UpdateOptions()
-            windObj.destroy()
+            self.destroy()
         else:
             tk.messagebox.showinfo('Conta Existente','A conta que você está tentando adicionar já existe.')
-            #windObj.okButton.config(relief = "raised")
+            #self.okButton.config(relief = "raised")
 
 #=========================================================================================
 class PreferencesWindow(newWindow):
@@ -294,6 +344,25 @@ class CategoryWindow(newWindow):
         changeColor.configure(bg = color[1])
         
     def addCategory(self, mainWinObj):
+        newCategory = self.newCatEntry.get()
+        catColor = self.changeColor['bg']
+        mainWinObj.allAcc.categoriesTotal[newCategory] = 0
+        mainWinObj.allAcc.categoriesColor[newCategory] = catColor
+        StyleFormat.updateCategoryStyle(newCategory, catColor)
+        listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
+        self.catListMenu.popupMenu.config(values = listOfCategories)
+
+    def removeCategory(self, mainWinObj):
+        # Check if any transaction is using the category
+        newCategory = self.newCatEntry.get()
+        catColor = self.changeColor['bg']
+        mainWinObj.allAcc.categoriesTotal[newCategory] = 0
+        mainWinObj.allAcc.categoriesColor[newCategory] = catColor
+        StyleFormat.updateCategoryStyle(newCategory, catColor)
+        listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
+        self.catListMenu.popupMenu.config(values = listOfCategories)
+
+    def renameCategory(self, mainWinObj):
         newCategory = self.newCatEntry.get()
         catColor = self.changeColor['bg']
         mainWinObj.allAcc.categoriesTotal[newCategory] = 0

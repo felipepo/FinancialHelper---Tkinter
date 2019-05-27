@@ -83,7 +83,7 @@ class ToolBar(tk.Frame):
         print('ok')
     def Preferences(self):
     #Open the preferences window
-        prefWindow = newWinds.PreferencesWindow()
+        newWinds.PreferencesWindow()
 
 class ToolBarIcons(tk.Frame):
     #Class to create the homepage base
@@ -94,46 +94,46 @@ class ToolBarIcons(tk.Frame):
         self.toolbar.grid(row = 0, column = 0, columnspan = 3, sticky="nsew")
 
         #Create Buttons with icons
-        homeButton = customWidgets.ButtonIcon(self.toolbar, "Icons\homeButton.png")
+        homeButton = customWidgets.ButtonIcon(self.toolbar, r"Icons\homeButton.png")
         homeButton.buttonWithIcon.bind("<Button-1>",lambda event: Funs.ShowWindow(mainWinObj.home))
         
-        addExpense = customWidgets.ButtonIcon(self.toolbar,"Icons\AddExpense.png")
+        addExpense = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddExpense.png")
         addExpense.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'In'))
         
-        addRevenue = customWidgets.ButtonIcon(self.toolbar,"Icons\AddRevenue.png")
+        addRevenue = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddRevenue.png")
         addRevenue.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'Out'))
         
-        transfer = customWidgets.ButtonIcon(self.toolbar,"Icons\Transfer.png")
+        transfer = customWidgets.ButtonIcon(self.toolbar, r"Icons\Transfer.png")
         transfer.buttonWithIcon.config(command = self.newTransfer)
         
-        AddAcc = customWidgets.ButtonIcon(self.toolbar,"Icons\AddAcc.png")
+        AddAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddAcc.png")
         AddAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Add"))
 
-        RemoveAcc = customWidgets.ButtonIcon(self.toolbar,"Icons\RemoveAcc.png")
+        RemoveAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\RemoveAcc.png")
         RemoveAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Del"))
 
-        test = customWidgets.ButtonIcon(self.toolbar,"Icons\Transfer.png")
+        test = customWidgets.ButtonIcon(self.toolbar, r"Icons\Transfer.png")
         test.buttonWithIcon.bind("<Button-1>",lambda event: self.printAccountsData(mainWinObj))
 
-        cat = customWidgets.ButtonIcon(self.toolbar,"Icons\homeButton.png")
+        cat = customWidgets.ButtonIcon(self.toolbar, r"Icons\EditTransfer.png")
         cat.buttonWithIcon.bind("<Button-1>",lambda event: self.editCategories(mainWinObj))
 
     def editCategories(self, mainWinObj):
-        catWindow = newWinds.CategoryWindow(mainWinObj)
+        newWinds.CategoryWindow(mainWinObj)
         
     def newTransaction(self, mainWinObj, inOrOut):
-        transWindow = newWinds.TransactionWindowSqr(mainWinObj, inOrOut)
+        newWinds.TransactionWindowSqr(mainWinObj, inOrOut)
         
     def newTransfer(self):
-        transWindow = newWinds.TransferWindow()
+        newWinds.TransferWindow()
         
     def DelOrAddAccount(self, mainWinObj, deloradd):
         if deloradd == "Add":
-            addAccWin = newWinds.NewAccountWindow(mainWinObj)
+            newWinds.NewAccountWindow(mainWinObj)
         else:
-            delAccWin = newWinds.DelAccountWindow(mainWinObj)        
+            newWinds.DelAccountWindow(mainWinObj)
 
-    def printAccountsData(event, mainWinObj):
+    def printAccountsData(self, mainWinObj):
         for acc in list(mainWinObj.allAcc.accountsObjs.keys()):
             print(acc)
             Funs.showdic(mainWinObj.allAcc.accountsObjs[acc].transactions)

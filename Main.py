@@ -25,7 +25,7 @@ def SetMainWindow(master):
 if __name__ == "__main__":
     loopBool = True
     newWindowBG = 'PaleTurquoise1'#'PaleTurquoise1'#'PaleGreen1'#'OliveDrab1'#'coral'#'LightGoldenrod1'#'light sky blue'
-    #root = tk.Tk()
+
     root = tkth.ThemedTk()
     starttime=time.time()
     root.protocol("WM_DELETE_WINDOW", update_Var)
@@ -35,9 +35,7 @@ if __name__ == "__main__":
 
     mainWindow = Initialization.MainWindow(root)
     
-    #END CODE--------------------------------------------------------
-
-    #root.mainloop()
+    # root.mainloop() ------------------------------------------------------
     while loopBool:
         autoSaveTime = 60 #Time to autosave in seconds
         currTime = time.time()
@@ -52,7 +50,7 @@ if __name__ == "__main__":
             else:
                 timeStamp = str(clk[2]) + "/" + str(clk[1]) + "/" +  str(clk[0]) + " at " + str(clk[3]) + ":" + str(clk[4])
             mainWindow.statusBar.Update("Saved -- " + timeStamp)
-        root.update_idletasks()
+        #root.update_idletasks()
         root.update()
 
         time.sleep(0.01)
