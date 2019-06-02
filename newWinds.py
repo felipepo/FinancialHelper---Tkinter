@@ -6,6 +6,7 @@ import tkinter.ttk as ttk
 import tkinter.colorchooser as tkCol
 import pdb #Importing Debugger
 import StyleFormat
+import time
 
 '''
 Classes related to new windows
@@ -14,6 +15,19 @@ Classes related to new windows
     TransferWindow
     NewAccountWindow
 '''
+def getDate():
+    clk = list(time.localtime())
+    day = str(clk[2])
+    month = str(clk[1])
+    year = str(clk[0])
+    if len(day) == 1:
+        day = "0" + day
+    if len(month) == 1:
+        month = "0" + month
+    dateVal = day + "/" + month + "/" +  year
+    return dateVal
+
+
 class newWindow(tk.Frame):
     #Class to create a new window
     def __init__(self):
@@ -52,6 +66,7 @@ class TransactionWindowSqr(newWindow):
             commVal = currTransaction.lblCom["text"]
             totalVal = totalVal.replace("R$ ", "")
             totalVal = totalVal.replace("-", "")
+            totalVal = totalVal.replace(".00", "")
         
         #Category
         self.categoryLabel = ttk.Label(self.newWindowFrm, text = "Categoria",anchor = 'w', style = 'newWindow.TLabel')
@@ -66,6 +81,7 @@ class TransactionWindowSqr(newWindow):
         #Date - DD/MM/YYYY
         self.dateLabel = ttk.Label(self.newWindowFrm, text = "Data",anchor = 'w', style = 'newWindow.TLabel')
         self.dateLabel.grid(row = 0, column = 2, columnspan = 2, sticky = 'nsew', padx = 5, pady = 5)
+        dateVal = getDate()
         self.dateEntry = customWidgets.EntryWithText(self.newWindowFrm, 'DD/MM/YYYY', self.checkDate, 'DateEntry', dateVal)
         self.dateEntry.entry.grid(row = 1, column = 2, columnspan = 2, padx = 5, ipady = 5, sticky = 'nsew')
         
