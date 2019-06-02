@@ -62,10 +62,10 @@ class EntryWithText(ttk.Entry):
             self.entry.insert(0, self.defaultstr)
         else:
             self.entry.insert(0, currentStr)
-        self.entry.bind('<FocusIn>', lambda event: self.on_entry_click(self))
-        self.entry.bind('<FocusOut>', lambda event: self.on_focusout(self, checkFunction))
+        self.entry.bind('<FocusIn>', lambda event: self.on_entry_click())
+        self.entry.bind('<FocusOut>', lambda event: self.on_focusout(checkFunction))
         
-    def on_entry_click(event, self):
+    def on_entry_click(self):
         """function that gets called whenever entry is clicked"""
         if self.entry.get() == self.defaultstr:
             self.entry.delete(0, "end") # delete all the text in the entry
@@ -74,7 +74,7 @@ class EntryWithText(ttk.Entry):
             currStyle.configure(self.styleName,foreground = 'black')
             #entry.config(fg = 'black')
 
-    def on_focusout(event, self, checkFunction):
+    def on_focusout(self, checkFunction):
         if self.entry.get() == '':
             currStyle = ttk.Style()
             currStyle.configure(self.styleName,foreground = 'grey')

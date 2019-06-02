@@ -47,6 +47,7 @@ class ContainerTransactions(tk.Frame):
         self.currRow = 0
         self.currCol = 0
         self.transactions = {}
+        self.transaciontBoards = {}
 
     def addTransaction(self, transObj):
         # Function to create a transaction object
@@ -134,6 +135,29 @@ class TransactionClass(tk.Frame):
         
     def editCurrentTransaction(self):
         newWinds.TransactionWindowSqr(self.mainWinObj, "update", self)
+
+    def UpdateBoard(self, bankAcc = "default"):
+        if bankAcc == "default":
+            bankAccount = self.lblAcc["text"]
+        else:
+            bankAccount = bankAcc
+        transactionData = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[self.transID]
+        category = transactionData.category
+        self.transCat.set(transactionData.category)
+        self.transDate.set(transactionData.date)
+        self.transVal.set(transactionData.value)
+        self.transAcc.set(transactionData.bankAccount)
+        self.transComm.set(transactionData.comment)
+        self.transFrame["style"] = category + 'Box.TFrame'
+        self.fstRowFrame["style"] = category + 'Box.TFrame'
+        self.scndRowFrame["style"] = category + 'Box.TFrame'
+        self.trdRowFrame["style"] = category + 'Box.TFrame'
+        self.lblCat["style"] = category + 'Cat.TLabel'
+        self.lblDate["style"] = category + 'Date.TLabel'
+        self.lblVal["style"] = category + self.valType + '.TLabel'
+        self.lblAcc["style"] = category + 'Acc.TLabel'
+        self.lblCom["style"] = category + 'Box.TLabel'
+        self.editBtn["style"] = category + 'Box.TLabel'
 
 class ControlFrame(tk.Frame):
     def __init__(self, mainWinObj):

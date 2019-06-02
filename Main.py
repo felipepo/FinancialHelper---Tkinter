@@ -22,19 +22,36 @@ def SetMainWindow(master):
     root.config(bg = "white")
     Funs.SetGridWeight(3, 2, root, [0,1],[0])
     
+class PreLoadingWindow(tk.Toplevel):
+    def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+        self.title("Loading Financial Helper")
+        self.geometry("300x300+300+300")
+
+        ## required to make window show before the program gets to the mainloop
+        self.update()
+
+
 if __name__ == "__main__":
     loopBool = True
     newWindowBG = 'PaleTurquoise1'#'PaleTurquoise1'#'PaleGreen1'#'OliveDrab1'#'coral'#'LightGoldenrod1'#'light sky blue'
 
     root = tkth.ThemedTk()
+
+    root.withdraw() # Hide window while drawing
+    preLoad = PreLoadingWindow(root)
     starttime=time.time()
     root.protocol("WM_DELETE_WINDOW", update_Var)
 
     #MAIN CODE ------------------------------------------------------
     SetMainWindow(root)
-
     mainWindow = Initialization.MainWindow(root)
-    
+
+    ## finished loading so destroy splash
+    preLoad.destroy()
+    ## show window again
+    root.deiconify()
+
     # root.mainloop() ------------------------------------------------------
     while loopBool:
         autoSaveTime = 60 #Time to autosave in seconds

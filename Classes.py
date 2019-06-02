@@ -48,7 +48,7 @@ class AllAccounts():
             "Luz": 'firebrick1',
             }
 
-    def AddTransaction(self, category, value, date, comment, bankAccount):
+    def AddTransaction(self, category, value, date, comment, bankAccount,transID = "default"):
         datePattern = re.compile(r'[0-3]\d/[0-1]\d/\d{4}\Z')
         matched = datePattern.match(date)
         if not matched:
@@ -56,7 +56,10 @@ class AllAccounts():
         else:
             try:
                 self.accountsObjs[bankAccount].totalAmount += float(value)
-                currTrans = binascii.b2a_hex(os.urandom(15))
+                if transID == "default":
+                    currTrans = binascii.b2a_hex(os.urandom(15))
+                else:
+                    currTrans = transID
                 self.accountsObjs[bankAccount].transactions[currTrans] = Transaction(currTrans, category, value, date, comment, bankAccount)
                 mon_year = self.accountsObjs[bankAccount].transactions[currTrans].month + "_" + self.accountsObjs[bankAccount].transactions[currTrans].year
                 if mon_year in list(self.accountsObjs[bankAccount].categoriesTotal.keys()):
@@ -71,7 +74,7 @@ class AllAccounts():
             except:
                 return False
     
-    def UpdateTransaction(self, currTrans, category, value, date, comment, bankAccount):
+    def UpdateTransaction(self, currTrans, category, value, date, comment, bankAccount, prev_bankAccount):
         datePattern = re.compile(r'[0-3]\d/[0-1]\d/\d{4}\Z')
         matched = datePattern.match(date)
         if not matched:
@@ -79,10 +82,9 @@ class AllAccounts():
         else:
             try:
                 # Get previous Values
-                prev_value = float(self.accountsObjs[bankAccount].transactions[currTrans].value)
-                prev_mon_year = self.accountsObjs[bankAccount].transactions[currTrans].month + "_" + self.accountsObjs[bankAccount].transactions[currTrans].year
-                prev_category = self.accountsObjs[bankAccount].transactions[currTrans].category
-                prev_bankAccount = self.accountsObjs[bankAccount].transactions[currTrans].bankAccount
+                prev_value = float(self.accountsObjs[prev_bankAccount].transactions[currTrans].value)
+                prev_mon_year = self.accountsObjs[prev_bankAccount].transactions[currTrans].month + "_" + self.accountsObjs[prev_bankAccount].transactions[currTrans].year
+                prev_category = self.accountsObjs[prev_bankAccount].transactions[currTrans].category
 
                 # Update all the necessary parameters before assigning updated values
                 self.accountsObjs[prev_bankAccount].totalAmount -= prev_value
@@ -93,23 +95,27 @@ class AllAccounts():
                         del self.accountsObjs[prev_bankAccount].categoriesTotal[prev_mon_year]
                 
                 # Assign updated values to target transaction object
-                month, year = Funs.GetMY(date)
-                mon_year = month + "_" + year
-                self.accountsObjs[bankAccount].totalAmount += float(value)
-                self.accountsObjs[bankAccount].transactions[currTrans].comment = comment
-                self.accountsObjs[bankAccount].transactions[currTrans].bankAccount = bankAccount
-                self.accountsObjs[bankAccount].transactions[currTrans].year = year
-                self.accountsObjs[bankAccount].transactions[currTrans].month = month
-                self.accountsObjs[bankAccount].transactions[currTrans].category = category
-                self.accountsObjs[bankAccount].transactions[currTrans].value = value
-                if mon_year in list(self.accountsObjs[bankAccount].categoriesTotal.keys()):
-                    if category in list(self.accountsObjs[bankAccount].categoriesTotal[mon_year].keys()):
-                        self.accountsObjs[bankAccount].categoriesTotal[mon_year][category] += float(value)
-                    else:
-                        self.accountsObjs[bankAccount].categoriesTotal[mon_year][category] = float(value)
+                if bankAccount != prev_bankAccount:
+                    self.AddTransaction(category, value, date, comment, bankAccount, currTrans)
+                    del self.accountsObjs[prev_bankAccount].transactions[currTrans]
                 else:
-                    self.accountsObjs[bankAccount].categoriesTotal[mon_year] = {}
-                    self.accountsObjs[bankAccount].categoriesTotal[mon_year][category] = float(value)
+                    month, year = Funs.GetMY(date)
+                    mon_year = month + "_" + year
+                    self.accountsObjs[bankAccount].totalAmount += float(value)
+                    self.accountsObjs[bankAccount].transactions[currTrans].comment = comment
+                    self.accountsObjs[bankAccount].transactions[currTrans].bankAccount = bankAccount
+                    self.accountsObjs[bankAccount].transactions[currTrans].year = year
+                    self.accountsObjs[bankAccount].transactions[currTrans].month = month
+                    self.accountsObjs[bankAccount].transactions[currTrans].category = category
+                    self.accountsObjs[bankAccount].transactions[currTrans].value = value
+                    if mon_year in list(self.accountsObjs[bankAccount].categoriesTotal.keys()):
+                        if category in list(self.accountsObjs[bankAccount].categoriesTotal[mon_year].keys()):
+                            self.accountsObjs[bankAccount].categoriesTotal[mon_year][category] += float(value)
+                        else:
+                            self.accountsObjs[bankAccount].categoriesTotal[mon_year][category] = float(value)
+                    else:
+                        self.accountsObjs[bankAccount].categoriesTotal[mon_year] = {}
+                        self.accountsObjs[bankAccount].categoriesTotal[mon_year][category] = float(value)
                 return True
             except:
                 return False

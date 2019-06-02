@@ -130,29 +130,14 @@ class TransactionWindowSqr(newWindow):
         date = self.dateEntry.entry.get()
         bankAccount = self.accDropMenu.tkvar.get()
         comment = self.commentEntry.get()
-        updatedFlag = self.mainWinObj.allAcc.UpdateTransaction(self.transObj.transID, category, value, date, comment, bankAccount)
+        updatedFlag = self.mainWinObj.allAcc.UpdateTransaction(self.transObj.transID, category, value, date, comment, bankAccount, self.transObj.lblAcc["text"])
         if updatedFlag:
             accName = self.mainWinObj.homePage.accFrame.options.dropMenu.tkvar.get()
             self.newWindow.destroy()
             self.mainWinObj.homePage.accFrame.UpdateLabel(accName)
         else:
             tk.messagebox.showinfo('Campo incorreto','Erro nos campos.')
-        transactionData = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[self.transObj.transID]
-        self.transObj.transCat.set(transactionData.category)
-        self.transObj.transDate.set(transactionData.date)
-        self.transObj.transVal.set(transactionData.value)
-        self.transObj.transAcc.set(transactionData.bankAccount)
-        self.transObj.transComm.set(transactionData.comment)
-        self.transObj.transFrame["style"] = category + 'Box.TFrame'
-        self.transObj.fstRowFrame["style"] = category + 'Box.TFrame'
-        self.transObj.scndRowFrame["style"] = category + 'Box.TFrame'
-        self.transObj.trdRowFrame["style"] = category + 'Box.TFrame'
-        self.transObj.lblCat["style"] = category + 'Cat.TLabel'
-        self.transObj.lblDate["style"] = category + 'Date.TLabel'
-        self.transObj.lblVal["style"] = category + self.transObj.valType + '.TLabel'
-        self.transObj.lblAcc["style"] = category + 'Acc.TLabel'
-        self.transObj.lblCom["style"] = category + 'Box.TLabel'
-        self.transObj.editBtn["style"] = category + 'Box.TLabel'
+        self.transObj.UpdateBoard(bankAccount)
 
     def checkDate(self):
         datePattern = re.compile(r'\d{2}/\d{2}/\d{4}\Z')
@@ -298,37 +283,70 @@ class CategoryWindow(newWindow):
         self.newWindow.wm_title("Categorias")
         #self.newWindow.protocol("WM_DELETE_WINDOW", self.destroyFcn)
         Funs.SetGridWeight(1,2,self.newWindowFrm)
+        listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
+        if not listOfCategories:
+            listOfCategories.append("")
+            firstColor = 'PaleTurquoise1'
+        else:
+            firstColor = mainWinObj.allAcc.categoriesColor[listOfCategories[0]]
+            
+        self.renameCat = tk.LabelFrame(self.newWindowFrm, background = 'PaleTurquoise1', text = "Renomear")
+        Funs.SetGridWeight(3,1,self.renameCat)
+        self.renameListMenu = customWidgets.OptionsButton(self.renameCat, listOfCategories, 0, 0)
+        self.renameListMenu.popupMenu.configure(style = 'newWindow.TCombobox')
+        self.newCatNameEntry = ttk.Entry(self.renameCat)
+        self.renameCatButton = ttk.Button(self.renameCat, text = "Renomear", style = 'newWindow.TButton')
+        self.renameCatButton.bind("<Button-1>", lambda event: self.renameCategory(mainWinObj))
 
+        self.delCat = tk.LabelFrame(self.newWindowFrm, background = 'PaleTurquoise1', text = "Remover")
+        Funs.SetGridWeight(3,1,self.delCat)
+        
+        self.delListMenu = customWidgets.OptionsButton(self.delCat, listOfCategories, 0, 0)
+        self.delListMenu.popupMenu.configure(style = 'newWindow.TCombobox')
+
+        self.removeCat = ttk.Button(self.delCat, text = "Del", style = 'newWindow.TButton')
+        self.removeCat.bind("<Button-1>", lambda event: self.removeCategory(mainWinObj))
+        
         self.addCat = tk.LabelFrame(self.newWindowFrm, background = 'PaleTurquoise1', text = "Adicionar")
         Funs.SetGridWeight(3,1,self.addCat)
-        self.addCat.grid(row = 0, column = 0, sticky = 'nswe', padx = 5, pady = 5)
         
         #self.newCatEntry = customWidgets.EntryWithText(self.addCat, 'Nova Categoria', self.emptyFcn, 'newWindow')
         self.newCatEntry = ttk.Entry(self.addCat)
-        self.newCatEntry.grid(row = 0, column = 0, sticky = 'nswe', padx = 5, pady = 5)
         
         self.changeColor = tk.Label(self.addCat, text = '    ', bg = 'red')
         self.changeColor.bind("<Button-1>", lambda event: self.updateColorLabel(self.changeColor))
-        self.changeColor.grid(row = 0, column = 1, sticky = 'nswe', padx = 5, pady = 5)
         
         self.createCat = ttk.Button(self.addCat, text = "Add", style = 'newWindow.TButton')
         self.createCat.bind("<Button-1>", lambda event: self.addCategory(mainWinObj))
-        self.createCat.grid(row = 0, column = 2, sticky = 'nswe', padx = 5, pady = 5)
         
-        listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
-
         self.editCat = tk.LabelFrame(self.newWindowFrm, background = 'PaleTurquoise1', text = "Editar")
         Funs.SetGridWeight(2,1,self.editCat)
-        self.editCat.grid(row = 1, column = 0, sticky = 'nswe', padx = 5, pady = 5)
         self.currCatColor = tk.Label(self.editCat, text = '    ')
         self.currCatColor.bind("<Button-1>", lambda event: self.changeCatColor(mainWinObj))
+        self.currCatColor.configure(bg = firstColor)
         
-        if not listOfCategories:
-            listOfCategories.append("")
-        else:
-            self.currCatColor.configure(bg = mainWinObj.allAcc.categoriesColor[listOfCategories[0]])
         self.catListMenu = OptionsButton(self.editCat, listOfCategories, 0, 0, mainWinObj, self.currCatColor)
         self.catListMenu.popupMenu.configure(style = 'newWindow.TCombobox')
+
+        # Rename Category section
+        self.renameCat.grid(row = 0, column = 0, sticky = 'nswe', padx = 5, pady = 5)
+        self.renameListMenu.popupMenu.grid(columnspan = 1, padx = 5, pady = 5)
+        self.newCatNameEntry.grid(row = 0, column = 2, sticky = 'nswe', padx = 5, pady = 5)
+        self.renameCatButton.grid(row = 0, column = 3, sticky = 'nswe', padx = 5, pady = 5)
+
+        # Remove Category section
+        self.delCat.grid(row = 1, column = 0, sticky = 'nswe', padx = 5, pady = 5)
+        self.delListMenu.popupMenu.grid(columnspan = 1, padx = 5, pady = 5)
+        self.removeCat.grid(row = 0, column = 2, sticky = 'nswe', padx = 5, pady = 5)
+
+        # Add category section
+        self.addCat.grid(row = 2, column = 0, sticky = 'nswe', padx = 5, pady = 5)
+        self.newCatEntry.grid(row = 0, column = 0, sticky = 'nswe', padx = 5, pady = 5)
+        self.changeColor.grid(row = 0, column = 1, sticky = 'nswe', padx = 5, pady = 5)
+        self.createCat.grid(row = 0, column = 2, sticky = 'nswe', padx = 5, pady = 5)
+
+        # Edit Category section
+        self.editCat.grid(row = 3, column = 0, sticky = 'nswe', padx = 5, pady = 5)
         self.catListMenu.popupMenu.grid(columnspan = 1, padx = 5, pady = 5)
         self.currCatColor.grid(row = 0, column = 1, sticky = 'nswe', padx = 5, pady = 5)
 
@@ -346,7 +364,6 @@ class CategoryWindow(newWindow):
     def addCategory(self, mainWinObj):
         newCategory = self.newCatEntry.get()
         catColor = self.changeColor['bg']
-        mainWinObj.allAcc.categoriesTotal[newCategory] = 0
         mainWinObj.allAcc.categoriesColor[newCategory] = catColor
         StyleFormat.updateCategoryStyle(newCategory, catColor)
         listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
@@ -354,22 +371,46 @@ class CategoryWindow(newWindow):
 
     def removeCategory(self, mainWinObj):
         # Check if any transaction is using the category
-        newCategory = self.newCatEntry.get()
-        catColor = self.changeColor['bg']
-        mainWinObj.allAcc.categoriesTotal[newCategory] = 0
-        mainWinObj.allAcc.categoriesColor[newCategory] = catColor
-        StyleFormat.updateCategoryStyle(newCategory, catColor)
-        listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
-        self.catListMenu.popupMenu.config(values = listOfCategories)
+        delCategory = self.delListMenu.tkvar.get()
+        mayDelete = True
+        for iBankAcc in mainWinObj.allAcc.accountsObjs:
+            for iTransaction in mainWinObj.allAcc.accountsObjs[iBankAcc].transactions:
+                if mainWinObj.allAcc.accountsObjs[iBankAcc].transactions[iTransaction].category == delCategory:
+                    mayDelete = False
+        if mayDelete:
+            del mainWinObj.allAcc.categoriesColor[delCategory]
+            listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
+            self.catListMenu.popupMenu.config(values = listOfCategories)
+            self.catListMenu.tkvar.set(listOfCategories[0])
+            self.delListMenu.popupMenu.config(values = listOfCategories)
+            self.delListMenu.tkvar.set(listOfCategories[0])
 
     def renameCategory(self, mainWinObj):
-        newCategory = self.newCatEntry.get()
-        catColor = self.changeColor['bg']
-        mainWinObj.allAcc.categoriesTotal[newCategory] = 0
-        mainWinObj.allAcc.categoriesColor[newCategory] = catColor
-        StyleFormat.updateCategoryStyle(newCategory, catColor)
+        prevName = self.renameListMenu.tkvar.get()
+        newName = self.newCatNameEntry.get()
+        catColor = mainWinObj.allAcc.categoriesColor[prevName]
+        for iBankAcc in mainWinObj.allAcc.accountsObjs:
+            for iTransaction in mainWinObj.allAcc.accountsObjs[iBankAcc].transactions:
+                if mainWinObj.allAcc.accountsObjs[iBankAcc].transactions[iTransaction].category == prevName:
+                    mainWinObj.allAcc.accountsObjs[iBankAcc].transactions[iTransaction].category = newName
+            for iMonthYear in mainWinObj.allAcc.accountsObjs[iBankAcc].categoriesTotal:
+                try:
+                    mainWinObj.allAcc.accountsObjs[iBankAcc].categoriesTotal[iMonthYear][newName] = mainWinObj.allAcc.accountsObjs[iBankAcc].categoriesTotal[iMonthYear].pop(prevName)
+                except:
+                    pass
+
+        mainWinObj.allAcc.categoriesColor[newName] = mainWinObj.allAcc.categoriesColor.pop(prevName)
+        StyleFormat.updateCategoryStyle(newName, catColor)
+
         listOfCategories = list(mainWinObj.allAcc.categoriesColor.keys())
+        self.renameListMenu.popupMenu.config(values = listOfCategories)
+        self.renameListMenu.tkvar.set(listOfCategories[0])
         self.catListMenu.popupMenu.config(values = listOfCategories)
+        self.catListMenu.tkvar.set(listOfCategories[0])
+        self.delListMenu.popupMenu.config(values = listOfCategories)
+        self.delListMenu.tkvar.set(listOfCategories[0])
+        for iTransactionBoard in mainWinObj.accPage.transFrame.transContainer.transactions:
+            mainWinObj.accPage.transFrame.transContainer.transactions[iTransactionBoard].UpdateBoard()
 
 class OptionsButton(tk.Frame):
     #Class to create the dropdown menu
