@@ -1,5 +1,7 @@
 import tkinter as tk
 import pickle
+import time
+import re
 
 '''
 General Functions
@@ -71,3 +73,22 @@ def loadData():
     loadedData = pickle.load(infile)
     infile.close()
     return loadedData
+
+#=========================================================================================
+def getDate():
+    clk = list(time.localtime())
+    day = str(clk[2])
+    month = str(clk[1])
+    year = str(clk[0])
+    if len(day) == 1:
+        day = "0" + day
+    if len(month) == 1:
+        month = "0" + month
+    dateVal = day + "/" + month + "/" +  year
+    return dateVal
+
+#=========================================================================================
+def checkDate(date):
+    datePattern = re.compile(r'[0-3]\d/[0-1]\d/\d{4}\Z')
+    matched = datePattern.match(date)
+    return matched

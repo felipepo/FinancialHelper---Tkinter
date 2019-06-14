@@ -6,7 +6,6 @@ import tkinter.ttk as ttk
 import tkinter.colorchooser as tkCol
 import pdb #Importing Debugger
 import StyleFormat
-import time
 
 '''
 Classes related to new windows
@@ -15,18 +14,6 @@ Classes related to new windows
     TransferWindow
     NewAccountWindow
 '''
-def getDate():
-    clk = list(time.localtime())
-    day = str(clk[2])
-    month = str(clk[1])
-    year = str(clk[0])
-    if len(day) == 1:
-        day = "0" + day
-    if len(month) == 1:
-        month = "0" + month
-    dateVal = day + "/" + month + "/" +  year
-    return dateVal
-
 
 class newWindow(tk.Frame):
     #Class to create a new window
@@ -44,10 +31,11 @@ class newWindow(tk.Frame):
 #=========================================================================================
 class TransactionWindowSqr(newWindow):
     #Class to create a window to add data for a transaction
-    def __init__(self, mainWinObj, inOrout, currTransaction = ""):
+    def __init__(self, mainWinObj, inOrout, currTransaction = "", bank_or_creditCard = "bank"):
         newWindow.__init__(self)
         self.inOrout = inOrout
         self.mainWinObj = mainWinObj
+        self.bank_or_creditCard = bank_or_creditCard
         self.newWindow.wm_title("Nova Transação")
         self.newWindow.geometry("400x200")
         Funs.SetGridWeight(3,6,self.newWindowFrm, [0, 1])
@@ -81,7 +69,7 @@ class TransactionWindowSqr(newWindow):
         #Date - DD/MM/YYYY
         self.dateLabel = ttk.Label(self.newWindowFrm, text = "Data",anchor = 'w', style = 'newWindow.TLabel')
         self.dateLabel.grid(row = 0, column = 2, columnspan = 2, sticky = 'nsew', padx = 5, pady = 5)
-        dateVal = getDate()
+        dateVal = Funs.getDate()
         self.dateEntry = customWidgets.EntryWithText(self.newWindowFrm, 'DD/MM/YYYY', self.checkDate, 'DateEntry', dateVal)
         self.dateEntry.entry.grid(row = 1, column = 2, columnspan = 2, padx = 5, ipady = 5, sticky = 'nsew')
         
@@ -94,7 +82,10 @@ class TransactionWindowSqr(newWindow):
         #Account
         self.accLabel = ttk.Label(self.newWindowFrm, text = "Conta",anchor = 'w', style = 'newWindow.TLabel')
         self.accLabel.grid(row = 3, column = 2, columnspan = 2, sticky = 'nsew', padx = 5, pady = (5,5))
-        listOfAccounts = list(self.mainWinObj.allAcc.accountsObjs.keys())
+        if bank_or_creditCard == "bank":
+            listOfAccounts = list(self.mainWinObj.allAcc.accountsObjs.keys())
+        else:
+            listOfAccounts = list(self.mainWinObj.allAcc.creditCardObjs.keys())
         if not listOfAccounts:
             listOfAccounts.append("")
         else:
@@ -128,9 +119,12 @@ class TransactionWindowSqr(newWindow):
         date = self.dateEntry.entry.get()
         bankAccount = self.accDropMenu.tkvar.get()
         comment = self.commentEntry.get()
-        currTrans = self.mainWinObj.allAcc.AddTransaction(category, value, date, comment, bankAccount)
+        currTrans = self.mainWinObj.allAcc.AddTransaction(category, value, date, comment, bankAccount, transID = "default", bank_or_creditCard = self.bank_or_creditCard)
         if currTrans:
-            currTransObj = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[currTrans]
+            if self.bank_or_creditCard == "bank":
+                currTransObj = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[currTrans]
+            else:
+                currTransObj = self.mainWinObj.allAcc.creditCardObjs[bankAccount].transactions[currTrans]
             self.mainWinObj.accPage.transFrame.transContainer.addTransaction(currTransObj)
             accName = self.mainWinObj.homePage.accFrame.options.dropMenu.tkvar.get()
             self.newWindow.destroy()
@@ -146,7 +140,7 @@ class TransactionWindowSqr(newWindow):
         date = self.dateEntry.entry.get()
         bankAccount = self.accDropMenu.tkvar.get()
         comment = self.commentEntry.get()
-        updatedFlag = self.mainWinObj.allAcc.UpdateTransaction(self.transObj.transID, category, value, date, comment, bankAccount, self.transObj.lblAcc["text"])
+        updatedFlag = self.mainWinObj.allAcc.UpdateTransaction(self.transObj.transID, category, value, date, comment, bankAccount, self.transObj.lblAcc["text"], bank_or_creditCard = self.bank_or_creditCard)
         if updatedFlag:
             accName = self.mainWinObj.homePage.accFrame.options.dropMenu.tkvar.get()
             self.newWindow.destroy()
@@ -206,80 +200,6 @@ class TransferWindow(newWindow):
         getEntry = tk.Button(self.newWindow, text = "Ok")
         #getEntry.bind("<Button-1>", lambda event: CreateTransaction(caller)
         getEntry.grid(row = 5, column = 2)
-
-#=========================================================================================
-class AccountWindow(newWindow):
-    #Class to create window for an account creation or removal
-    def __init__(self, mainWinObj):
-        newWindow.__init__(self)
-        #Funs.SetGridWeight(1,1,self.newWindowFrm, [1])
-
-        #Account Name
-        self.valueLabel = ttk.Label(self.newWindowFrm, text = "Nome da conta", style = 'newWindow.TLabel')
-        self.valueLabel.grid(row = 0, column = 0, sticky = 'nw', padx = 5, pady = 5)
-
-        #Create OK Buttons
-        self.okButton = ttk.Button(self.newWindowFrm, text = "Ok", width = 5, style = 'newWindow.TButton')
-        self.okButton.grid(row = 1, column = 1, padx = 5, pady = 5)
-    
-#=========================================================================================
-class NewAccountWindow(AccountWindow):
-    #Class to create window where a new account is added
-    def __init__(self, mainWinObj):
-        AccountWindow.__init__(self, mainWinObj)
-        self.newWindow.wm_title("Nova Conta")
-
-        #Entry for account name
-        self.valueEntry = ttk.Entry(self.newWindowFrm, style = 'newWindow.TEntry')
-        self.valueEntry.focus()
-        self.valueEntry.bind("<Return>", lambda event: self.newAccount(mainWinObj))
-        self.valueEntry.grid(row = 1, column = 0, sticky = 'nsew', padx = 5, pady = 5)
-
-        self.okButton.bind("<Button-1>", lambda event: self.newAccount(mainWinObj))
-
-    def newAccount(self, mainWinObj):
-        #Function to add a new account
-        value = self.valueEntry.get()
-        added = mainWinObj.allAcc.AddAcc(value)
-
-        #Check if the account already exists
-        if added:            
-            mainWinObj.homePage.accFrame.UpdateOptions()
-            self.destroy()
-        else:
-            tk.messagebox.showinfo('Conta Existente','A conta que você está tentando adicionar já existe.')
-            #windObj.okButton.config(relief = "raised")
-
-#=========================================================================================
-class DelAccountWindow(AccountWindow):
-    #Class to create window where a new account is added
-    def __init__(self, mainWinObj):
-        AccountWindow.__init__(self, mainWinObj)
-        self.newWindow.wm_title("Remover Conta")
-
-        listOfAccounts = list(mainWinObj.allAcc.accountsObjs.keys())
-        if not listOfAccounts:
-            listOfAccounts.append("")
-        else:
-            del listOfAccounts[0]
-
-        self.accOptions = customWidgets.OptionsButton(self.newWindowFrm, listOfAccounts, 1, 0)
-        self.accOptions.popupMenu.grid(padx = 5, pady = 5)
-
-        self.okButton.bind("<Button-1>", lambda event: self.delAccount(mainWinObj))
-    
-    def delAccount(self, mainWinObj):
-        #Function to add a new account
-        value = self.accOptions.tkvar.get()
-        added = mainWinObj.allAcc.DelAcc(value)
-
-        #Check if the account already exists
-        if added:            
-            mainWinObj.homePage.accFrame.UpdateOptions()
-            self.destroy()
-        else:
-            tk.messagebox.showinfo('Conta Existente','A conta que você está tentando adicionar já existe.')
-            #self.okButton.config(relief = "raised")
 
 #=========================================================================================
 class PreferencesWindow(newWindow):
@@ -409,11 +329,11 @@ class CategoryWindow(newWindow):
             for iTransaction in mainWinObj.allAcc.accountsObjs[iBankAcc].transactions:
                 if mainWinObj.allAcc.accountsObjs[iBankAcc].transactions[iTransaction].category == prevName:
                     mainWinObj.allAcc.accountsObjs[iBankAcc].transactions[iTransaction].category = newName
-            for iMonthYear in mainWinObj.allAcc.accountsObjs[iBankAcc].categoriesTotal:
-                try:
-                    mainWinObj.allAcc.accountsObjs[iBankAcc].categoriesTotal[iMonthYear][newName] = mainWinObj.allAcc.accountsObjs[iBankAcc].categoriesTotal[iMonthYear].pop(prevName)
-                except:
-                    pass
+        for iMonthYear in mainWinObj.categoriesTotal:
+            try:
+                mainWinObj.allAcc.categoriesTotal[iMonthYear][newName] = mainWinObj.allAcc.categoriesTotal[iMonthYear].pop(prevName)
+            except:
+                pass
 
         mainWinObj.allAcc.categoriesColor[newName] = mainWinObj.allAcc.categoriesColor.pop(prevName)
         StyleFormat.updateCategoryStyle(newName, catColor)
@@ -425,9 +345,89 @@ class CategoryWindow(newWindow):
         self.catListMenu.tkvar.set(listOfCategories[0])
         self.delListMenu.popupMenu.config(values = listOfCategories)
         self.delListMenu.tkvar.set(listOfCategories[0])
-        for iTransactionBoard in mainWinObj.accPage.transFrame.transContainer.transactions:
-            mainWinObj.accPage.transFrame.transContainer.transactions[iTransactionBoard].UpdateBoard()
+        mainWinObj.accPage.transFrame.transContainer.updateAllBoards()
 
+#=========================================================================================
+class AccountWindow(newWindow):
+    #Class to create window for an account creation or removal
+    def __init__(self, mainWinObj):
+        newWindow.__init__(self)
+        #Funs.SetGridWeight(1,1,self.newWindowFrm, [1])
+
+        #Account Name
+        self.valueLabel = ttk.Label(self.newWindowFrm, text = "Nome da conta", style = 'newWindow.TLabel')
+        self.valueLabel.grid(row = 0, column = 0, sticky = 'nw', padx = 5, pady = 5)
+
+        #Create OK Buttons
+        self.okButton = ttk.Button(self.newWindowFrm, text = "Ok", width = 5, style = 'newWindow.TButton')
+        self.okButton.grid(row = 1, column = 1, padx = 5, pady = 5)
+    
+#=========================================================================================
+class NewAccountWindow(AccountWindow):
+    #Class to create window where a new account is added
+    def __init__(self, mainWinObj, bank_or_creditCard = "bank"):
+        AccountWindow.__init__(self, mainWinObj)
+        self.newWindow.wm_title("Nova Conta")
+        self.bank_or_creditCard = bank_or_creditCard
+
+        #Entry for account name
+        self.valueEntry = ttk.Entry(self.newWindowFrm, style = 'newWindow.TEntry')
+        self.valueEntry.focus()
+        self.valueEntry.bind("<Return>", lambda event: self.newAccount(mainWinObj))
+        self.valueEntry.grid(row = 1, column = 0, sticky = 'nsew', padx = 5, pady = 5)
+
+        self.okButton.bind("<Button-1>", lambda event: self.newAccount(mainWinObj))
+
+    def newAccount(self, mainWinObj):
+        #Function to add a new account
+        value = self.valueEntry.get()
+        added = mainWinObj.allAcc.AddAcc(value, self.bank_or_creditCard)
+
+        #Check if the account already exists
+        if added:
+            mainWinObj.homePage.accFrame.UpdateOptions()
+            self.destroy()
+        else:
+            tk.messagebox.showinfo('Conta Existente','A conta que você está tentando adicionar já existe.')
+            #windObj.okButton.config(relief = "raised")
+
+#=========================================================================================
+class DelAccountWindow(AccountWindow):
+    #Class to create window where a new account is added
+    def __init__(self, mainWinObj, bank_or_creditCard = "bank"):
+        AccountWindow.__init__(self, mainWinObj)
+        self.newWindow.wm_title("Remover Conta")
+        self.bank_or_creditCard = bank_or_creditCard
+
+        if bank_or_creditCard == "bank":
+            listOfAccounts = list(mainWinObj.allAcc.accountsObjs.keys())
+        else:
+            listOfAccounts = list(mainWinObj.allAcc.creditCardObjs.keys())
+        if not listOfAccounts:
+            listOfAccounts.append("")
+        else:
+            del listOfAccounts[0]
+
+        self.accOptions = customWidgets.OptionsButton(self.newWindowFrm, listOfAccounts, 1, 0)
+        self.accOptions.popupMenu.grid(padx = 5, pady = 5)
+
+        self.okButton.bind("<Button-1>", lambda event: self.delAccount(mainWinObj))
+    
+    def delAccount(self, mainWinObj):
+        #Function to add a new account
+        value = self.accOptions.tkvar.get()
+        removed = mainWinObj.allAcc.DelAcc(value, self.bank_or_creditCard)
+        mainWinObj.accPage.transFrame.transContainer.updateAllBoards()
+
+        #Check if the account already exists
+        if removed:            
+            mainWinObj.homePage.accFrame.UpdateOptions()
+            self.destroy()
+        else:
+            tk.messagebox.showinfo('Conta Existente','A conta que você está tentando adicionar já existe.')
+            #self.okButton.config(relief = "raised")
+
+#=========================================================================================
 class OptionsButton(tk.Frame):
     #Class to create the dropdown menu
     def __init__(self, parent, choices, nrow, ncol, mainWinObj, currCatColor):

@@ -97,20 +97,32 @@ class ToolBarIcons(tk.Frame):
         homeButton = customWidgets.ButtonIcon(self.toolbar, r"Icons\homeButton.png")
         homeButton.buttonWithIcon.bind("<Button-1>",lambda event: Funs.ShowWindow(mainWinObj.home))
         
-        addExpense = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddExpense.png")
-        addExpense.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'In'))
+        addExpense = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddExpenseBank.png")
+        addExpense.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'In', "bank"))
         
-        addRevenue = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddRevenue.png")
-        addRevenue.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'Out'))
+        addRevenue = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddRevenueBank.png")
+        addRevenue.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'Out', "bank"))
         
         transfer = customWidgets.ButtonIcon(self.toolbar, r"Icons\Transfer.png")
         transfer.buttonWithIcon.config(command = self.newTransfer)
         
-        AddAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddAcc.png")
-        AddAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Add"))
+        AddAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddAccBank.png")
+        AddAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Add", "bank"))
 
-        RemoveAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\RemoveAcc.png")
-        RemoveAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Del"))
+        RemoveAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\RemoveAccBank.png")
+        RemoveAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Del", "bank"))
+
+        addExpense = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddExpenseCC.png")
+        addExpense.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'In', "creditCard"))
+        
+        addRevenue = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddRevenueCC.png")
+        addRevenue.buttonWithIcon.bind("<Button-1>",lambda event: self.newTransaction(mainWinObj, 'Out', "creditCard"))
+        
+        AddAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\AddAccCC.png")
+        AddAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Add", "creditCard"))
+
+        RemoveAcc = customWidgets.ButtonIcon(self.toolbar, r"Icons\RemoveAccCC.png")
+        RemoveAcc.buttonWithIcon.bind("<Button-1>",lambda event: self.DelOrAddAccount(mainWinObj, "Del", "creditCard"))
 
         test = customWidgets.ButtonIcon(self.toolbar, r"Icons\Transfer.png")
         test.buttonWithIcon.bind("<Button-1>",lambda event: self.printAccountsData(mainWinObj))
@@ -121,17 +133,17 @@ class ToolBarIcons(tk.Frame):
     def editCategories(self, mainWinObj):
         newWinds.CategoryWindow(mainWinObj)
         
-    def newTransaction(self, mainWinObj, inOrOut):
-        newWinds.TransactionWindowSqr(mainWinObj, inOrOut)
+    def newTransaction(self, mainWinObj, inOrOut, bank_or_creditCard="bank"):
+        newWinds.TransactionWindowSqr(mainWinObj, inOrOut, bank_or_creditCard=bank_or_creditCard)
         
     def newTransfer(self):
         newWinds.TransferWindow()
         
-    def DelOrAddAccount(self, mainWinObj, deloradd):
+    def DelOrAddAccount(self, mainWinObj, deloradd, bank_or_creditCard="bank"):
         if deloradd == "Add":
-            newWinds.NewAccountWindow(mainWinObj)
+            newWinds.NewAccountWindow(mainWinObj, bank_or_creditCard=bank_or_creditCard)
         else:
-            newWinds.DelAccountWindow(mainWinObj)
+            newWinds.DelAccountWindow(mainWinObj, bank_or_creditCard=bank_or_creditCard)
 
     def printAccountsData(self, mainWinObj):
         for acc in list(mainWinObj.allAcc.accountsObjs.keys()):

@@ -28,7 +28,8 @@ class MainWindow(tk.Frame):
             self.allAcc = loadedData #Creates object from loaded data
         except:
             self.allAcc = Classes.AllAccounts() #Creates object from scratch
-            self.allAcc.AddAcc("Todas")
+            self.allAcc.AddAcc("Todas", "bank")
+            self.allAcc.AddAcc("Todas", "creditCard")
         
         StyleFormat.setStyle(self.allAcc.categoriesColor)
         self.sideMenu = MainWindowClasses.SideMenu(parent, self) #Create Side Menu Object        

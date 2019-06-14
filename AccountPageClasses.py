@@ -74,6 +74,15 @@ class ContainerTransactions(tk.Frame):
         for iBox in list(self.transactions.keys()):
             self.transactions[iBox].grid_forget()
 
+    def updateAllBoards(self):
+        alltrans = list(self.transactions.keys())
+        for iTransactionBoard in alltrans:
+            updateFlag = self.transactions[iTransactionBoard].UpdateBoard()
+            if not updateFlag:
+                #self.transactions[iTransactionBoard].transFrame.grid_forget()
+                self.transactions[iTransactionBoard].transFrame.destroy()
+                del self.transactions[iTransactionBoard]
+
 class TransactionClass(tk.Frame):
     def __init__(self, transObj, parent, mainWinObj):
         tk.Frame.__init__(self)
@@ -141,23 +150,27 @@ class TransactionClass(tk.Frame):
             bankAccount = self.lblAcc["text"]
         else:
             bankAccount = bankAcc
-        transactionData = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[self.transID]
-        category = transactionData.category
-        self.transCat.set(transactionData.category)
-        self.transDate.set(transactionData.date)
-        self.transVal.set(transactionData.value)
-        self.transAcc.set(transactionData.bankAccount)
-        self.transComm.set(transactionData.comment)
-        self.transFrame["style"] = category + 'Box.TFrame'
-        self.fstRowFrame["style"] = category + 'Box.TFrame'
-        self.scndRowFrame["style"] = category + 'Box.TFrame'
-        self.trdRowFrame["style"] = category + 'Box.TFrame'
-        self.lblCat["style"] = category + 'Cat.TLabel'
-        self.lblDate["style"] = category + 'Date.TLabel'
-        self.lblVal["style"] = category + self.valType + '.TLabel'
-        self.lblAcc["style"] = category + 'Acc.TLabel'
-        self.lblCom["style"] = category + 'Box.TLabel'
-        self.editBtn["style"] = category + 'Box.TLabel'
+        try:
+            transactionData = self.mainWinObj.allAcc.accountsObjs[bankAccount].transactions[self.transID]
+            category = transactionData.category
+            self.transCat.set(transactionData.category)
+            self.transDate.set(transactionData.date)
+            self.transVal.set(transactionData.value)
+            self.transAcc.set(transactionData.bankAccount)
+            self.transComm.set(transactionData.comment)
+            self.transFrame["style"] = category + 'Box.TFrame'
+            self.fstRowFrame["style"] = category + 'Box.TFrame'
+            self.scndRowFrame["style"] = category + 'Box.TFrame'
+            self.trdRowFrame["style"] = category + 'Box.TFrame'
+            self.lblCat["style"] = category + 'Cat.TLabel'
+            self.lblDate["style"] = category + 'Date.TLabel'
+            self.lblVal["style"] = category + self.valType + '.TLabel'
+            self.lblAcc["style"] = category + 'Acc.TLabel'
+            self.lblCom["style"] = category + 'Box.TLabel'
+            self.editBtn["style"] = category + 'Box.TLabel'
+            return True
+        except:
+            return False
 
 class ControlFrame(tk.Frame):
     def __init__(self, mainWinObj):
